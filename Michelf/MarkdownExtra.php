@@ -514,6 +514,18 @@ class MarkdownExtra extends \Michelf\Markdown {
 			$parts = preg_split($block_tag_re, $text, 2,
 								PREG_SPLIT_DELIM_CAPTURE);
 
+			if ($parts === false) {
+				$last_error = preg_last_error();
+
+				if ($last_error === PREG_RECURSION_LIMIT_ERROR) {
+					throw new \RuntimeException('PCRE recursion limit reached, cannot process markdown.');
+				}
+
+				throw new \RuntimeException(
+					sprintf('PCRE occurred in preg_split (Code: %s).', ($last_error ? $last_error : '-1'))
+				);
+			}
+
 			// If in Markdown span mode, add a empty-string span-level hash
 			// after each newline to prevent triggering any block element.
 			if ($span) {
@@ -708,8 +720,20 @@ class MarkdownExtra extends \Michelf\Markdown {
 			// by the pattern.
 			$parts = preg_split($tag_re, $text, 2, PREG_SPLIT_DELIM_CAPTURE);
 
+			if ($parts === false) {
+				$last_error = preg_last_error();
+
+				if ($last_error === PREG_RECURSION_LIMIT_ERROR) {
+					throw new \RuntimeException('PCRE recursion limit reached, cannot process markdown.');
+				}
+
+				throw new \RuntimeException(
+					sprintf('PCRE occurred in preg_split (Code: %s).', ($last_error ? $last_error : '-1'))
+				);
+			}
+
 			if (count($parts) < 3) {
-				// End of $text reached with unbalenced tag(s).
+				// End of $text reached with unbalanced tag(s).
 				// In that case, we return original text unchanged and pass the
 				// first character as filtered to prevent an infinite loop in the
 				// parent function.
